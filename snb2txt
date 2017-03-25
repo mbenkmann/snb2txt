@@ -117,7 +117,7 @@ if __name__ == "__main__":
           width = ord(imgdata[5]) * 256 + ord(imgdata[4])
           height = ord(imgdata[9]) * 256 + ord(imgdata[8])
           imgdata = imgdata[52:]
-          img = Image.fromstring("RGBA",(width,height),imgdata)
+          img = Image.frombytes("RGBA",(width,height),imgdata)
           sio = StringIO()
           img.save(sio, "PNG")
           imgdata = sio.getvalue()
