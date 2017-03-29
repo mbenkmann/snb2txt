@@ -67,7 +67,10 @@ if __name__ == "__main__":
   
   zipfl = ZipFile(infile, "r")
   
-  sty = zipfl.open("snote/styles.xml")
+  try:
+    sty = zipfl.open("snote/styles.xml")
+  except KeyError:
+    sty = zipfl.open("/snote/styles.xml")
   styles = minidom.parseString(sty.read())
   for style in styles.getElementsByTagName("sn:style"):
     if style.getAttributeNode("sn:type").value == "character":
@@ -75,7 +78,10 @@ if __name__ == "__main__":
       charStyle[charStyleId] = Style(len(style.getElementsByTagName("sn:b"))>0, len(style.getElementsByTagName("sn:i"))>0, len(style.getElementsByTagName("sn:u"))>0)
   sty.close()
   
-  rel = zipfl.open("snote/_rels/snote.xml.rels")
+  try:
+    rel = zipfl.open("snote/_rels/snote.xml.rels")
+  except KeyError:
+    rel = zipfl.open("/snote/_rels/snote.xml.rels")
   relations = minidom.parseString(rel.read())
   for relation in relations.getElementsByTagName("Relationship"):
     relId = relation.getAttribute("Id")
@@ -83,7 +89,10 @@ if __name__ == "__main__":
     rels[relId] = target
   rel.close()
     
-  notexml = zipfl.open("snote/snote.xml")
+  try:
+    notexml = zipfl.open("snote/snote.xml")
+  except KeyError:
+    notexml = zipfl.open("/snote/snote.xml")
   note = minidom.parseString(notexml.read())
   
   node = note.documentElement
@@ -108,7 +117,10 @@ if __name__ == "__main__":
       imgrelpath = rels[block.getAttribute("r:id")]
       imgname = imgrelpath.rsplit("/",1)[1]
       if include_backgrounds or not is_background:
-        imgfile = zipfl.open("snote/"+imgrelpath)
+        try:
+          imgfile = zipfl.open("snote/"+imgrelpath)
+        except KeyError:
+          imgfile = zipfl.open("/snote/"+imgrelpath)
         imgdata = imgfile.read()
         imgfile.close()
         if imgname.endswith(".zdib"):
@@ -117,7 +129,7 @@ if __name__ == "__main__":
           width = ord(imgdata[5]) * 256 + ord(imgdata[4])
           height = ord(imgdata[9]) * 256 + ord(imgdata[8])
           imgdata = imgdata[52:]
-          img = Image.fromstring("RGBA",(width,height),imgdata)
+          img = Image.frombytes("RGBA",(width,height),imgdata)
           sio = StringIO()
           img.save(sio, "PNG")
           imgdata = sio.getvalue()
